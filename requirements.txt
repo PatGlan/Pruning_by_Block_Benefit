@@ -1,0 +1,7 @@
+
+torch==1.13.1
+torchvision==0.8.1
+pip:
+    timm==0.4.12
+    matplotlib
+    pandas
