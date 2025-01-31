@@ -4,37 +4,25 @@
 
 
  Abstract:
->Vision Transformer have set new benchmarks in several tasks, but these models come with the lack of high computational costs which makes them impractical for resource limited hardware. Network pruning reduces the computational complexity by removing less important operations while maintaining performance. However, when a pretrained model is pruned before convergence in an unseen data domain, it can lead to a misevaluation of weight significance, resulting in an unfavourable resource assignment. To face the issue of removing elements too early in training, we propose Depth Aware Pruning (DAP), which assigns model parameters dependent on the state of convergence. Our proposed method identifies the changing impact of task specific features and rebalances the computational resources to boost lately converged components. We show in extensive experiments that our method DAP sets a new state of the art with most noticeable gains in transfer learning tasks. Notably, DAP is able to conserve high performance, even in high sparsity regimes of 70% parameter reduction while only losing 0.64% in accuracy.
+>Vision Transformer have set new benchmarks in several tasks, but these models come with the lack of high computational costs which makes them impractical for resource limited hardware. Network pruning reduces the computational complexity by removing less important operations while maintaining performance. However, when a pretrained model is pruned before convergence in an unseen data domain, it can lead to a misevaluation of weight significance, resulting in an unfavourable resource assignment. To face the issue of removing elements too early in training, we propose Depth Aware Pruning (DAP), which assigns model parameters dependent on the state of convergence. Our proposed method identifies the changing impact of task specific features and rebalances the computational resources to boost lately converged components. 
 
 ---
 
-Depth Aware
-
-
-<p align="center">
-<img src="fig/Block_plan.png"  width="500" height="250">
-</p>
-> The Block Performance Indicator (BPI) measures the
-relative performance gain towards the goal task for every Attention
-(Attn) and MLP block. The BPI-metric is used to update the block
-keep ratio κbi , where blocks with higher performance gain are
-assigned more parameter. We apply a stop gradient operator to
-avoid propagating BPI-gradients through the model.
-
-
-
+Pruning on transfer learning tasks causes a domain mismatch between the pretrained model initialization and the target domain of the downstream task.
+This domain gap leads to a misevaluation of weight importance, resulting in performance loss when model parameters are removed to early.
+Our experiments point out deeper layers express task specific features in later epochs, shown in the following figure.
+We findings that the training time at which layers adapt to a new domain depends on the network depth, leading to a structural problem in pruning.
 
 <p align="center">
-<img src="fig/BlockPerformance.png"  width="500" height="370">
+<img src="fig/BlockPerformance_overTrainingEpochs.png"  width="400" height="300">
 </p>
-> Relative performance gain of Attention and MLP blocks
-measured by ∆Ψi. DAP is applied to Deit-S on Imagenet-1K with
-pruning rate 50%. The results show that only Attention blocks in-
-crease the classification tokens discriminance. MLP blocks mainly
-contribute to semantic patch tokens in a decreasing manner.
+> We measure the discriminative feature improvement of individual Attention and MLP blocks for classification token (upper row) and patches (botton row) over training epochs.
+> The results show, deeper layers express features only in later epochs, while shallower layers stay almost equal discriminative ovet the whole training period.
 
 
-
+To face this problem we porpose *Depth Aware Pruning* (*DAP*) to balance the global parameter resources dependent on the feature improvement of Attention and MLP blocks.
+Thereby DAP ensures high parameter resources to be assiged, only if the regarding block contributes to the featureimprovement.
+As shown in the following table, DAP in highly performant on transfer learning tasks, by considering the depth dependent state of convergence of individual blocks.
 
 
  | model      | method         | pruned  | IFOOD <br> pr=50%   | IFOOD <br> pr=75%   | INAT19 <br> pr=50%  | INAT19 <br> pr=75%  |
@@ -53,12 +41,19 @@ contribute to semantic patch tokens in a decreasing manner.
 ---
 
 ## Install
+checkout our repository
+```
+git clone https://anonymous.4open.science/r/DepthAwarePruning-DE53
+cd DepthAwarePruning
+
+```
+
+Use the provided `requirements.txt` file to create a conda environment for this project: 
+```
+conda create --name DAP --file requirements.txt
+```
 
 
 ---
 
 ## Run
-=======
-# Depth Aware Pruning: Sparsity Vision Transformers by Retaining High-Performoing Blocks
-
-
