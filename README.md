@@ -1,3 +1,4 @@
-# DepthAwarePruning
+# Depth Aware Pruning: Sparsity Vision Transformers by Retaining High-Performoing Blocks
 
-Pruning on transfer learning tasks
+Abstract
+
