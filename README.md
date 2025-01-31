@@ -58,3 +58,7 @@ contribute to semantic patch tokens in a decreasing manner.
 ---
 
 ## Run
+=======
+# Depth Aware Pruning: Sparsity Vision Transformers by Retaining High-Performoing Blocks
+
+
