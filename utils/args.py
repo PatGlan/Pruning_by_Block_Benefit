@@ -6,8 +6,7 @@ def get_args_parser():
     parser.add_argument('--batch-size', default=64, type=int)
     parser.add_argument('--epochs', default=300, type=int)
     parser.add_argument('--epochs-run', default=None, type=int, help="epochs until pipeline stops calculating")
-    parser.add_argument('--grad-accum-steps', default=1, type=int, metavar='N',
-                        help='number of grad_accumulation steps')
+    parser.add_argument('--grad-accum-steps', default=1, type=int, metavar='N', help='number of grad_accumulation steps')
     parser.add_argument('--unscale-lr', action='store_true')
     parser.add_argument('--print-freq', default=100, type=int)
 
@@ -143,7 +142,7 @@ def get_args_parser():
     parser.add_argument('--prune-finalize-epoch', default=50, type=int, help="end step Sharpening. If value is None, the mask is sparse at epoch in (--epochs)")
     parser.add_argument('--prune-steps-update-mask', default=1000, type=int, help="scales with size of the dataset. should be about 3 update steps per epoch")
 
-    parser.add_argument('--prune-kr-handcraft', default=None, type=str, help="string of fix block keep ratios ordered by depth and separated by ','. 24 Values must be given for all Attention and MLP blocks. E.q.: '0.7,0.4,...'")
+    parser.add_argument('--prune-kr-handcraft', default=None, type=str, help="Optional for handcrafted Block-keep-ratio. This string to define blockwise keep-ratio, separated by ','. 24 Values must be given for all Attention and MLP blocks. E.q.: '0.7,0.4,...'")
     parser.add_argument('--prune-scale-gate-imp', default="attn_out:1.5,mlp_hid:0.75,mlp_out:1.5", type=str, help="add factor to gate, seperator=',', default scale=1")
     parser.add_argument('--pr-gamma', default=0.2, type=float, help="momentum to update block importancy: '0.0' = not update, '1.0' = use new block imp score fully")
     parser.add_argument('--pr-tau-max', default=0.1, type=float, help="sharpening factor at the beginning of step sparpening. '0'= hard mask")
@@ -151,9 +150,6 @@ def get_args_parser():
     parser.add_argument('--pr-alpha', default=0.5, type=float, help="alpha-blending between cls and patch-loss for importancy vlaue")
     parser.add_argument('--pr-block-imp-scale', default=10.0, type=float, help="temperature to scale layer-importancy. Low values smooth minimal and peak values of block imporance.")
 
-
-    # * Finetuning params
-    parser.add_argument('--finetune', default='', help='finetune from checkpoint')
 
     # Dataset parameters
     parser.add_argument('--data-path', default='/localstorage/data', type=str, help='dataset path')

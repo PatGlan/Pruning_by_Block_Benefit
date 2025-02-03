@@ -29,7 +29,7 @@ import utils.py_utils as py_utils
 from utils.args import get_args_parser
 from utils.logger import get_logger
 from utils.model_utils import get_new_attn_dim, get_block_masks
-from models.model_loader import get_student_model, get_teacher_model
+from models.model_loader import get_model
 from models.FmAnalyseHead import FeaturemapAnalyseHead
 from pruner.forward_functions import update_model_forward_functions, update_model_gate_layer
 from pruner import freeze_model, count_kept_param_per_block
@@ -60,7 +60,7 @@ def main(args):
             label_smoothing=args.smoothing, num_classes=args.nb_classes)
 
     logger.info(f"Creating model: {args.model}")
-    model, gate_func_added = get_student_model(args)
+    model, gate_func_added = get_model(args)
     model = update_model_forward_functions(model, args, args.model)
 
     # count Flops
@@ -74,44 +74,6 @@ def main(args):
 
     if args.prune_ratio is not None and not args.model_freeze:
         update_model_gate_layer(model, args)
-
-    if args.finetune:
-        if args.finetune.startswith('https'):
-            checkpoint = torch.hub.load_state_dict_from_url(
-                args.finetune, map_location='cpu', check_hash=True)
-        else:
-            checkpoint = torch.load(args.finetune, map_location='cpu')
-
-        checkpoint_model = checkpoint['model']
-        state_dict = model.state_dict()
-        for k in ['head.weight', 'head.bias', 'head_dist.weight', 'head_dist.bias']:
-            if k in checkpoint_model and checkpoint_model[k].shape != state_dict[k].shape:
-                logger.info(f"Removing key {k} from pretrained checkpoint")
-                del checkpoint_model[k]
-
-        # interpolate position embedding
-        pos_embed_checkpoint = checkpoint_model['pos_embed']
-        embedding_size = pos_embed_checkpoint.shape[-1]
-        num_patches = model.patch_embed.num_patches
-        num_extra_tokens = model.pos_embed.shape[-2] - num_patches
-        # height (== width) for the checkpoint position embedding
-        orig_size = int((pos_embed_checkpoint.shape[-2] - num_extra_tokens) ** 0.5)
-        # height (== width) for the new position embedding
-        new_size = int(num_patches ** 0.5)
-        # class_token and dist_token are kept unchanged
-        extra_tokens = pos_embed_checkpoint[:, :num_extra_tokens]
-        # only the position tokens are interpolated
-        pos_tokens = pos_embed_checkpoint[:, num_extra_tokens:]
-        pos_tokens = pos_tokens.reshape(-1, orig_size, orig_size, embedding_size).permute(0, 3, 1, 2)
-        pos_tokens = torch.nn.functional.interpolate(
-            pos_tokens, size=(new_size, new_size), mode='bicubic', align_corners=False)
-        pos_tokens = pos_tokens.permute(0, 2, 3, 1).flatten(1, 2)
-        new_pos_embed = torch.cat((extra_tokens, pos_tokens), dim=1)
-        checkpoint_model['pos_embed'] = new_pos_embed
-
-        model.load_state_dict(checkpoint_model, strict=False)
-
-
 
     if mixup_active:
         # smoothing is handled with mixup label transform

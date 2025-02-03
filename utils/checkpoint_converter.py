@@ -3,7 +3,7 @@ import argparse
 from utilities.args import get_args_parser
 
 from data.datasets import get_dataloader
-from models.model_loader import get_student_model
+from models.model_loader import get_model
 
 import os
 
@@ -15,7 +15,7 @@ def convert_form_torch_pretrained(args):
     assert ".npz" in args.model_path or args.model_pretrained
 
     data_loader_train, data_loader_val, dataset_train, dataset_val = get_dataloader(args)
-    model, gate_func_added = get_student_model(args)
+    model, gate_func_added = get_model(args)
 
     # naming
     save_path = os.path.abspath(__file__)
@@ -33,7 +33,7 @@ def convert_from_dino(args):
     save_path="/home/glandorf/projects/FoundDist/models/checkpoints/dinov2"
 
     data_loader_train, data_loader_val, dataset_train, dataset_val = get_dataloader(args)
-    model, gate_func_added = get_student_model(args)
+    model, gate_func_added = get_model(args)
 
     cp_backbone = torch.load(path_backbone, map_location='cpu')
 

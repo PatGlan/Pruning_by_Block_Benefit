@@ -36,14 +36,6 @@ class ImageNetConstants(ImageDatasetConstants):
     channel_stds: Tuple[float] = (0.229, 0.224, 0.225)
 
 @dataclass
-class TinyImageNetConstants(ImageDatasetConstants):
-    dataset_size: int = 0
-    num_classes: int = 200
-    crop_size: int = 64
-    channel_means: Tuple[float] = (0.48024578664982126, 0.44807218089384643, 0.3975477478649648)
-    channel_stds: Tuple[float] = (0.2769864069088257, 0.26906448510256, 0.282081906210584)
-
-@dataclass
 class Cifar10Constants(ImageDatasetConstants):
     dataset_size: int = 50000
     num_classes: int = 10
@@ -58,14 +50,6 @@ class Cifar100Constants(ImageDatasetConstants):
     crop_size: int = 32
     channel_means: Tuple[float] = (0.5071, 0.4867, 0.4408)
     channel_stds: Tuple[float] = (0.2675, 0.2565, 0.2761)
-
-@dataclass
-class Stl10Constants(ImageDatasetConstants):
-    dataset_size: int = 0
-    num_classes: int = 10
-    crop_size: int = 96
-    channel_means: Tuple[float] = (0.485, 0.456, 0.406)
-    channel_stds: Tuple[float] = (0.229, 0.224, 0.225)
 
 @dataclass
 class INat18Constants(ImageDatasetConstants):
@@ -94,10 +78,8 @@ class IFoodConstants(ImageDatasetConstants):
 def get_dataset_constants(dataset: str):
     constants_dict = {
         "IMNET": ImageNetConstants,
-        "TIMNET": TinyImageNetConstants,
         "CIFAR10": Cifar10Constants,
         "CIFAR100": Cifar100Constants,
-        "STL10": Stl10Constants,
         "INAT18": INat18Constants,
         "INAT19": INat19Constants,
         "IFOOD": IFoodConstants,
@@ -148,8 +130,6 @@ class INatDataset(ImageFolder):
             target_current_true = targeter[categors[category]]
             self.samples.append((path_current, target_current_true))
 
-    # __getitem__ and __len__ inherited from ImageFolder
-
 
 def get_dataloader(args):
     data_const = get_dataset_constants(args.data_set)
@@ -157,10 +137,6 @@ def get_dataloader(args):
 
     dataset_train = build_dataset(is_train=True, args=args)
     dataset_val = build_dataset(is_train=False, args=args)
-
-    #build subset in training-dataset
-    #dataset_train = torch.utils.data.Subset(dataset_train, list(range(0, 1000)))
-    #dataset_val = torch.utils.data.Subset(dataset_val, list(range(0, 1000)))
 
     if args.distributed:
         num_tasks = utils.get_world_size()
@@ -193,8 +169,6 @@ def get_dataloader(args):
         pin_memory=args.pin_mem,
         drop_last=True,
     )
-    #if args.ThreeAugment:
-    #    data_loader_train.dataset.transform = new_data_aug_generator(args)
 
     data_loader_val = torch.utils.data.DataLoader(
         dataset_val, sampler=sampler_val,
@@ -211,10 +185,6 @@ def get_val_dataloader (args):
     args.nb_classes = data_const.num_classes
 
     dataset_val = build_dataset(is_train=False, args=args)
-
-    #build subset in training-dataset
-    #dataset_train = torch.utils.data.Subset(dataset_train, list(range(0, 20000)))
-    #dataset_val = torch.utils.data.Subset(dataset_val, list(range(0, 1000)))
 
     if args.distributed:
         num_tasks = utils.get_world_size()
@@ -243,7 +213,6 @@ def get_val_dataloader (args):
 
 
 def _get_tranform(args, is_train):
-    #data_const = get_dataset_constants(args.data_set)
     resize_im = args.input_size > 32
     mean = IMAGENET_DEFAULT_MEAN
     std = IMAGENET_DEFAULT_STD
@@ -263,8 +232,6 @@ def _get_tranform(args, is_train):
             std=std
         )
         if not resize_im:
-            # replace RandomResizedCropAndInterpolation with
-            # RandomCrop
             transform.transforms[0] = transforms.RandomCrop(
                 args.input_size, padding=4)
         return transform
@@ -278,7 +245,6 @@ def _get_tranform(args, is_train):
         t.append(transforms.CenterCrop(args.input_size))
 
     t.append(transforms.ToTensor())
-    #t.append(transforms.Normalize(data_const.channel_means, data_const.channel_stds))
     t.append(transforms.Normalize(mean, std))
     return transforms.Compose(t)
 
@@ -307,40 +273,5 @@ def build_dataset(is_train, args):
     else:
         assert False, f"no Dataset: {args.data_set}"
     return dataset
-
-'''
-def build_transform(is_train, args):
-    resize_im = args.input_size > 32
-    if is_train:
-        # this should always dispatch to transforms_imagenet_train
-        transform = create_transform(
-            input_size=args.input_size,
-            is_training=True,
-            color_jitter=args.color_jitter,
-            auto_augment=args.aa,
-            interpolation=args.train_interpolation,
-            re_prob=args.reprob,
-            re_mode=args.remode,
-            re_count=args.recount,
-        )
-        if not resize_im:
-            # replace RandomResizedCropAndInterpolation with
-            # RandomCrop
-            transform.transforms[0] = transforms.RandomCrop(
-                args.input_size, padding=4)
-        return transform
-
-    t = []
-    if resize_im:
-        size = int(args.input_size / args.eval_crop_ratio)
-        t.append(
-            transforms.Resize(size, interpolation=3),  # to maintain same ratio w.r.t. 224 images
-        )
-        t.append(transforms.CenterCrop(args.input_size))
-
-    t.append(transforms.ToTensor())
-    t.append(transforms.Normalize(IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD))
-    return transforms.Compose(t)
-'''
 
 

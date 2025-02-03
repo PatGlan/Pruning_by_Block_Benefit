@@ -154,7 +154,7 @@ def resize_model_by_checkpoint(model, checkpoint):
     return model
 
 
-def get_student_model(args, logger=None):
+def get_model(args, logger=None):
 
     if "dinov2" in args.model: #example: dinov2_vitb14
         student_model = torch.hub.load(repo_or_dir="facebookresearch/dinov2", model=args.model)
