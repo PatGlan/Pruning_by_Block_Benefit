@@ -72,53 +72,7 @@ def forward_deit_distilled_patch16_224(self, x):
     if self.training:
         return p, p_dist, p_inter, x_inter
     else:
-        # during inference, return the average of both classifier predictions
         return (p + p_dist) / 2, p_inter, x_inter
-
-
-def forward_features_dinov2_base_patch16_224(self, x, masks=None):
-    '''
-    B, nc, w, h = x.shape
-    x = self.patch_embed(x)
-    if masks is not None:
-        x = torch.where(masks.unsqueeze(-1), self.mask_token.to(x.dtype).unsqueeze(0), x)
-
-    x = torch.cat((self.cls_token.expand(x.shape[0], -1, -1), x), dim=1)
-    x = x + self.interpolate_pos_encoding(x, w, h)
-
-    if self.register_tokens is not None:
-        x = torch.cat(
-            (
-                x[:, :1],
-                self.register_tokens.expand(x.shape[0], -1, -1),
-                x[:, 1:],
-            ),
-            dim=1,
-        )
-    '''
-
-    x = self.prepare_tokens_with_masks(x)
-
-    x_inter = []
-    x_inter.append(x)
-    for i, blk in enumerate(self.blocks):
-        x, x_attn, x_mlp = blk(x)
-
-        x_inter.append(x_attn.to(torch.float))
-        x_inter.append(x_mlp.to(torch.float))
-
-    x = self.norm(x)
-    return x, x_inter
-
-def forward_dinov2_patch16_224(self, x):
-    x, x_inter = self.forward_features(x)
-    p = self.head(x[:,0])
-
-    p_inter = None
-    if hasattr(self, "fmHead"):
-        p_inter = self.fmHead(x_inter)
-
-    return p, p_inter, x_inter
 
 
 '''
@@ -127,13 +81,7 @@ forward function used for Vision Transformer modules
 - attention
 - mlp
 '''
-from copy import deepcopy
 def forward_block_vit(self, x):
-    #attention
-    #if detach_graph:
-    #    x = x.detach()
-
-    #if not(hasattr(self.attn, "skip_block") and self.attn.skip_block):
     res = x
     if hasattr(self.attn, "input_mask") and self.attn.input_mask is not None:
         x = x[:,:,self.attn.input_mask]
@@ -141,19 +89,14 @@ def forward_block_vit(self, x):
     x_int = self.attn(x_int)
     x_int = self.drop_path(x_int)
     if hasattr(self.attn, "output_mask") and self.attn.output_mask is not None:
-        #x = res
-        #x[:,:,self.attn.output_mask] = x[:,:,self.attn.output_mask] + x_int
-
         x = torch.zeros_like(res)
         x[:, : , self.attn.output_mask] = x[:, : , self.attn.output_mask] + x_int
         x = res + x
     else:
         x = x_int + res
     feat_attn = x
-    #test_attn = feat_attn[0, 0].detach().cpu().numpy()
 
     #FFN
-    #if not (hasattr(self.mlp, "skip_block") and self.mlp.skip_block):
     res = x
     if hasattr(self.mlp, "input_mask") and self.mlp.input_mask is not None:
         x = x[:,:,self.mlp.input_mask]
@@ -161,91 +104,21 @@ def forward_block_vit(self, x):
     x_int = self.mlp(x_int)
     x_int = self.drop_path(x_int)
     if hasattr(self.mlp, "output_mask") and self.mlp.output_mask is not None:
-        #x = res
-        #x[:,:,self.mlp.output_mask] = x[:,:,self.mlp.output_mask] + x_int
-
         x = torch.zeros_like(res)
         x[:, : , self.mlp.output_mask] = x[:, : , self.mlp.output_mask] + x_int
         x = res + x
     else:
         x = x_int + res
     feat_mlp = x
-    #test_mlp = feat_mlp[0, 0].detach().cpu().numpy()
 
     return x, feat_attn, feat_mlp
 
-def forward_block_nested_vit(self, x):
-    #attention
-    #if detach_graph:
-    #    x = x.detach()
-    #if not (hasattr(self.attn, "skip_block") and self.attn.skip_block):
-    res = x
-    x = self.norm1(x)
-    x = self.attn(x)
-    x = self.ls1(x)
-    x = self.drop_path1(x)
-    x = x + res
-    feat_attn = x
-
-    #FFN
-    #if not (hasattr(self.mlp, "skip_block") and self.mlp.skip_block):
-    res = x
-    x = self.norm2(x)
-    x = self.mlp(x)
-    x = self.ls2(x)
-    x = self.drop_path2(x)
-    x = x + res
-    feat_mlp = x
-
-    return x, feat_attn, feat_mlp
-
-
-def forward_attention_nested_vit(self, x):
-    if hasattr(self, "input_mask") and self.input_mask is not None:
-        x = x[:,:,self.input_mask]
-
-    if hasattr(self, "attn_in_gate"):
-        x = self.attn_in_gate(x)
-    if hasattr(self, "attn_in_out_gate"):
-        x = self.attn_in_out_gate(x)
-
-    B, N, C = x.shape
-    qkv = self.qkv(x)
-    qkv = qkv.reshape(B, N, 3, self.num_heads, self.num_qkv_embed)
-
-    if hasattr(self, "attn_qkv_gate"):
-        qkv = self.attn_qkv_gate(qkv)
-
-    qkv = qkv.permute(2, 0, 3, 1, 4)
-
-    q, k, v = qkv[0] * self.scale, qkv[1], qkv[2]  # make torchscript happy (cannot use tensor as tuple)
-
-    attn = (q @ k.transpose(-2, -1))
-    attn = attn.softmax(dim=-1)
-    attn = self.attn_drop(attn)
-    x = (attn @ v).transpose(1, 2)
-
-    x = x.reshape(B, N, int(self.num_heads * self.num_qkv_embed))
-
-    x = self.proj(x)
-    if hasattr(self, "attn_out_gate"):
-        x = self.attn_out_gate(x)
-    if hasattr(self, "attn_in_out_gate"):
-        x = self.attn_in_out_gate(x)
-
-    x = self.proj_drop(x)
-
-    return x
 
 
 def forward_attention(self, x):
-    #if hasattr(self, "input_mask") and self.input_mask is not None:
-    #    x = x[:,:,self.input_mask]
 
     if hasattr(self, "attn_in_gate"):
         x = self.attn_in_gate(x)
-    if hasattr(self, "attn_in_out_gate"):
-        x = self.attn_in_out_gate(x)
 
     B, N, C = x.shape
     qkv = self.qkv(x)
@@ -262,26 +135,19 @@ def forward_attention(self, x):
     attn = attn.softmax(dim=-1)
     attn = self.attn_drop(attn)
     x = (attn @ v).transpose(1, 2)
-
     x = x.reshape(B, N, int(self.num_heads * self.num_qkv_embed))
 
     x = self.proj(x)
     if hasattr(self, "attn_out_gate"):
         x = self.attn_out_gate(x)
-    if hasattr(self, "attn_in_out_gate"):
-        x = self.attn_in_out_gate(x)
     x = self.proj_drop(x)
 
     return x
 
 def forward_mlp(self, x):
-    #if hasattr(self, "input_mask") and self.input_mask is not None:
-    #    x = x[:, :, self.input_mask]
 
     if hasattr(self, "mlp_in_gate"):
         x = self.mlp_in_gate(x)
-    if hasattr(self, "mlp_in_out_gate"):
-        x = self.mlp_in_out_gate(x)
 
     x = self.fc1(x)
     x = self.act(x)
@@ -293,8 +159,6 @@ def forward_mlp(self, x):
     x = self.fc2(x)
     if hasattr(self, "mlp_out_gate"):
         x = self.mlp_out_gate(x)
-    if hasattr(self, "mlp_in_out_gate"):
-        x = self.mlp_in_out_gate(x)
     x = self.drop(x)
     return x
 
@@ -346,18 +210,6 @@ def get_forward_functions(model_name:str):
             "forward": forward_deit_distilled_patch16_224,
         },
 
-
-        "dinov2_vitb14": {
-            "blocks.forward": {"blk": forward_block_nested_vit, "attn": forward_attention_nested_vit, "mlp": forward_mlp},
-            "forward_features": forward_features_dinov2_base_patch16_224,
-            "forward": forward_dinov2_patch16_224,
-        },
-        "dinov2_vitb14_lc": {
-            "blocks.forward": {"blk": forward_block_nested_vit, "attn": forward_attention_nested_vit,
-                               "mlp": forward_mlp},
-            "forward_features": forward_features_dinov2_base_patch16_224,
-            "forward": forward_dinov2_patch16_224,
-        },
     }
 
     return new_forward_fkt[model_name]
@@ -384,7 +236,6 @@ def update_model_gate_layer(model, args):
 
         if m.__class__.__name__ in ["Attention", "MemEffAttention"]:
             m.kr = 1.0
-            #m.skip_block = False
             m.input_mask = None
             m.output_mask = None
 
@@ -414,7 +265,6 @@ def update_model_gate_layer(model, args):
 
         elif m.__class__.__name__ == "Mlp":
             m.kr = 1.0
-            #m.skip_block = False
             m.input_mask = None
             m.output_mask = None
 
