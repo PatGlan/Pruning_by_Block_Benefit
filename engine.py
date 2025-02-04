@@ -58,7 +58,7 @@ def train_one_epoch(model: torch.nn.Module,
 
         if is_prune_step and ((step - step_warmup)%args.prune_steps_update_mask) == (args.prune_steps_update_mask - 1):
             if not log_block_intrinic_kr_done:
-                kr_block = criterion.prune_forward(step, logger)
+                kr_block = criterion.prune_forward(step)
                 log_block_intrinic_kr_done = True
             else:
                 kr_block = criterion.prune_forward(step)

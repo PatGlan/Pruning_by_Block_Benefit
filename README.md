@@ -69,13 +69,13 @@ conda create --name DAP --file requirements.txt
 
 prune model with DAP
 ```
-python -m torch.distributed.launch --nproc_per_node=4 --master_port $used_port --use_env main.py --output_dir $OUTPUT_DIR --epochs 50 --batch-size 64 --grad-accum-steps 2 --data-set CIFAR100 --data-path $PATH_DATASET --model deit_small_patch16_224 --model-path $MODEL_PATH --prune-method "block_pr" --prune-ratio $PRUNE_RATIO --prune-steps-update-mask 100 --prune-start-epoch 10 --dist-eval
+python -m torch.distributed.launch --nproc_per_node=4 --master_port $USED_PORT --use_env main.py --output_dir $OUTPUT_DIR --epochs 50 --batch-size 64 --grad-accum-steps 2 --data-set CIFAR100 --data-path $PATH_DATASET --model deit_small_patch16_224 --model-path $MODEL_PATH --prune-method "block_pr" --prune-ratio $PRUNE_RATIO --prune-steps-update-mask 100 --prune-start-epoch 10 --dist-eval
 ```
 *Note: we scale argument "prune-steps-update-mask" to 3 mask update steps per epoch.*
 
 fine-tune pruned model
 ```
-python -m torch.distributed.launch --nproc_per_node=4 --master_port $used_port --use_env main.py  --output_dir $OUTPUT_DIR --batch-size 128 --data-set CIFAR100 --data-path $PATH_DATASET --model deit_small_patch16_224 --model-path ${OUTPUT_DIR}/first_sparse_checkpoint.pth --resize-model-by-checkpoint --dist-eval
+python -m torch.distributed.launch --nproc_per_node=4 --master_port $USED_PORT --use_env main.py  --output_dir $OUTPUT_DIR --batch-size 128 --data-set CIFAR100 --data-path $PATH_DATASET --model deit_small_patch16_224 --model-path ${OUTPUT_DIR}/first_sparse_checkpoint.pth --resize-model-by-checkpoint --dist-eval
 ```
 
 

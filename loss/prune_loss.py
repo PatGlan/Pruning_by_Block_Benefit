@@ -171,30 +171,34 @@ class PruneLoss(torch.nn.Module):
     def transform_imp_block(self, imp_block, cnt_block, step=0, name="xxx"):
         imp_block = imp_block / cnt_block
 
-        self.logger.info(f"step: {step} | imp_block_{name}Bt: " + ", ".join(
-            ["{:+02.4f}".format(x) for x in imp_block.detach().cpu().tolist()]).replace("+", " "))
+        if self.logger is not None:
+            self.logger.info(f"step: {step} | imp_block_{name}Bt: " + ", ".join(
+                ["{:+02.4f}".format(x) for x in imp_block.detach().cpu().tolist()]).replace("+", " "))
 
         imp_block = imp_block * self.args.pr_block_imp_scale / imp_block.max()
         imp_block = self.f_sp(1.4 * imp_block) - self.f_sp(1.4 * imp_block - self.args.pr_block_imp_scale)
 
-        self.logger.info(f"step: {step} | imp_block_{name}At: " + ", ".join(
-            ["{:+02.4f}".format(x) for x in imp_block.detach().cpu().tolist()]).replace("+", " "))
+        if self.logger is not None:
+            self.logger.info(f"step: {step} | imp_block_{name}At: " + ", ".join(
+                ["{:+02.4f}".format(x) for x in imp_block.detach().cpu().tolist()]).replace("+", " "))
 
         imp_block = imp_block / (self.remain_w_per_block + 1e-6)
         imp_block = imp_block / imp_block.mean()
 
-        self.logger.info(f"step: {step} | imp_block_{name}As: " + ", ".join(
-            ["{:+02.4f}".format(x) for x in imp_block.detach().cpu().tolist()]).replace("+", " "))
-        self.logger.info(f"step: {step} | " + ("*" * 231))
+        if self.logger is not None:
+            self.logger.info(f"step: {step} | imp_block_{name}As: " + ", ".join(
+                ["{:+02.4f}".format(x) for x in imp_block.detach().cpu().tolist()]).replace("+", " "))
+            self.logger.info(f"step: {step} | " + ("*" * 231))
 
         return imp_block
 
 
     def get_imp_block(self, step=None, reset_imp_score=True):
-        self.logger.info(f"step: {step} | layer_index_imp: " +
-                         ", ".join([" {:1.4f}".format(x) for x in range(1, 10)]) + ", " +
-                         ", ".join([" {:2.3f}".format(x) for x in range(10, 25)]))
-        self.logger.info(f"step: {step} | " + ("*" * 231))
+        if self.logger is not None:
+            self.logger.info(f"step: {step} | layer_index_imp: " +
+                             ", ".join([" {:1.4f}".format(x) for x in range(1, 10)]) + ", " +
+                             ", ".join([" {:2.3f}".format(x) for x in range(10, 25)]))
+            self.logger.info(f"step: {step} | " + ("*" * 231))
 
         imp_block_cls = self.transform_imp_block(self.imp_block_cls, self.imp_block_cnt, step, "cls")
         imp_block_patch = self.transform_imp_block(self.imp_block_patch, self.imp_block_cnt, step, "pat")
@@ -224,10 +228,11 @@ class PruneLoss(torch.nn.Module):
         if self.update_block_kr:
             kr_block = self.get_imp_block(step, reset_imp_score)
 
-            self.logger.info(
-                f"step: {step} | imp_block_final: " + ", ".join(
-                    ["{:+02.4f}".format(x) for x in kr_block.detach().cpu().tolist()]).replace(
-                    "+", " "))
+            if self.logger is not None:
+                self.logger.info(
+                    f"step: {step} | imp_block_final: " + ", ".join(
+                        ["{:+02.4f}".format(x) for x in kr_block.detach().cpu().tolist()]).replace(
+                        "+", " "))
 
             #fist scaling run
             mask_blocks_kept_dense = self.mask_blocks_kept_dense
@@ -252,7 +257,7 @@ class PruneLoss(torch.nn.Module):
                 mask_block_prunable = torch.logical_not(torch.logical_or(mask_blocks_disabled, mask_blocks_kept_dense))
                 kr_block[mask_blocks_disabled] = min_kr_block
                 kr_block[mask_blocks_kept_dense] = max_kr_block
-                if not mask_block_prunable.any():
+                if not mask_block_prunable.any() and self.logger is not None:
                     self.logger.info("All Blocks fully pruned!")
                     self.logger.info(kr_block.detach().cpu().numpy())
                     break

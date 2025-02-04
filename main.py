@@ -147,7 +147,8 @@ def main(args):
         )
 
     if args.prune_ratio is not None:
-        criterion = PruneLoss(criterion, model_without_ddp, len(data_loader_train), args, logger=logger)
+        #criterion = PruneLoss(criterion, model_without_ddp, len(data_loader_train), args, logger=logger)
+        criterion = PruneLoss(criterion, model_without_ddp, len(data_loader_train), args, logger=None)
 
     output_dir = Path(args.output_dir)
     if args.resume:
@@ -289,7 +290,6 @@ def main(args):
             logger.info(f"PARAM TOTAL before Pruning: {n_param_sparse / 1e6:.3f} M")
 
             #parameter statistics
-            #param_remain = count_block_parameters(model_without_ddp)[0]
             _, param_blockwise_after_pruning = count_kept_param_per_block(model_without_ddp)
             logger.info("********* model keep_ratio per block *********")
             for i, (p_unpr, p_kept) in enumerate(zip(param_blockwise_before_pruning, param_blockwise_after_pruning)):
@@ -306,9 +306,6 @@ def main(args):
             skip_block_flags = criterion.get_skip_block_flag()
             logger.info(f"final blocks been skipped: " + ";".join(str(x) for x in skip_block_flags))
             logger.info("****************************************")
-            #n_param_dense = n_param_sparse
-            # flops_stat = count_flops(model)
-            # print(f"remain_flops: [{flops_stat[0]/1e6} M / {flops_stat[1]/1e6} M]")  #
 
 
         # break trainings run if epoch limit of run has reached
