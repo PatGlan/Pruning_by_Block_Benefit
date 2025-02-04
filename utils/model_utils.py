@@ -40,13 +40,24 @@ def get_block_masks(model_without_ddp):
 
     model_blocks = [m for name, m in model_without_ddp.named_modules() if name.endswith("blocks") or name.endswith("layer")][0]
     for i, block in enumerate(model_blocks):
-        if f"{i}_attn_input" in list_block_masks.keys():
+        if hasattr(block.attn, "attn_in_gate"):
+            list_block_masks[f"{i}_attn_input"] = block.attn.attn_in_gate.get_hard_mask()
+        elif hasattr(block.attn, "input_mask"):
             list_block_masks[f"{i}_attn_input"] = block.attn.input_mask
-        if f"{i}_attn_output" in list_block_masks.keys():
+
+        if hasattr(block.attn, "attn_out_gate"):
+            list_block_masks[f"{i}_attn_output"] = block.attn.attn_out_gate.get_hard_mask()
+        elif hasattr(block.attn, "output_mask"):
             list_block_masks[f"{i}_attn_output"] = block.attn.output_mask
-        if f"{i}_mlp_input" in list_block_masks.keys():
+
+        if hasattr(block.mlp, "mlp_in_gate"):
+            list_block_masks[f"{i}_mlp_input"] = block.mlp.mlp_in_gate.get_hard_mask()
+        elif hasattr(block.mlp, "input_mask"):
             list_block_masks[f"{i}_mlp_input"] = block.mlp.input_mask
-        if f"{i}_mlp_output" in list_block_masks.keys():
+
+        if hasattr(block.mlp, "mlp_out_gate"):
+            list_block_masks[f"{i}_mlp_output"] = block.mlp.mlp_out_gate.get_hard_mask()
+        elif hasattr(block.mlp, "output_mask"):
             list_block_masks[f"{i}_mlp_output"] = block.mlp.output_mask
 
         y=1

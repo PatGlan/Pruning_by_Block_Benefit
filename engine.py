@@ -15,7 +15,6 @@ from timm.utils import accuracy, ModelEma
 from loss.dist_loss import DistillationLoss
 from pruner import count_parameters_model_hard_masked
 import utils.py_utils as py_utils
-from utils.logger import log_model_imp_criteria
 
 def train_one_epoch(model: torch.nn.Module,
                     criterion: DistillationLoss,

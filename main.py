@@ -15,7 +15,6 @@ from timm.data import Mixup
 from timm.models import create_model
 from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy
 from timm.scheduler import create_scheduler
-from utils.optimizer import create_optimizer, NativeScaler
 from timm.utils import get_state_dict, ModelEma
 
 from data.datasets import get_dataloader
@@ -23,12 +22,11 @@ from engine import train_one_epoch, evaluate
 from loss import DistillationLoss, PruneLoss
 from fvcore.nn import FlopCountAnalysis
 
-
 import utils.py_utils as py_utils
-
 from utils.args import get_args_parser
 from utils.logger import get_logger
 from utils.model_utils import get_new_attn_dim, get_block_masks
+from utils.optimizer import create_optimizer, NativeScaler
 from models.model_loader import get_model
 from models.FmAnalyseHead import FeaturemapAnalyseHead
 from pruner.forward_functions import update_model_forward_functions, update_model_gate_layer

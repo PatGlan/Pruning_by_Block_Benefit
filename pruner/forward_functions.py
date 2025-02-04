@@ -133,42 +133,42 @@ def forward_block_vit(self, x):
     #if detach_graph:
     #    x = x.detach()
 
-    if not(hasattr(self.attn, "skip_block") and self.attn.skip_block):
-        res = x
-        if hasattr(self.attn, "input_mask") and self.attn.input_mask is not None:
-            x = x[:,:,self.attn.input_mask]
-        x_int = self.norm1(x)
-        x_int = self.attn(x_int)
-        x_int = self.drop_path(x_int)
-        if hasattr(self.attn, "output_mask") and self.attn.output_mask is not None:
-            #x = res
-            #x[:,:,self.attn.output_mask] = x[:,:,self.attn.output_mask] + x_int
+    #if not(hasattr(self.attn, "skip_block") and self.attn.skip_block):
+    res = x
+    if hasattr(self.attn, "input_mask") and self.attn.input_mask is not None:
+        x = x[:,:,self.attn.input_mask]
+    x_int = self.norm1(x)
+    x_int = self.attn(x_int)
+    x_int = self.drop_path(x_int)
+    if hasattr(self.attn, "output_mask") and self.attn.output_mask is not None:
+        #x = res
+        #x[:,:,self.attn.output_mask] = x[:,:,self.attn.output_mask] + x_int
 
-            x = torch.zeros_like(res)
-            x[:, : , self.attn.output_mask] = x[:, : , self.attn.output_mask] + x_int
-            x = res + x
-        else:
-            x = x_int + res
+        x = torch.zeros_like(res)
+        x[:, : , self.attn.output_mask] = x[:, : , self.attn.output_mask] + x_int
+        x = res + x
+    else:
+        x = x_int + res
     feat_attn = x
     #test_attn = feat_attn[0, 0].detach().cpu().numpy()
 
     #FFN
-    if not (hasattr(self.mlp, "skip_block") and self.mlp.skip_block):
-        res = x
-        if hasattr(self.mlp, "input_mask") and self.mlp.input_mask is not None:
-            x = x[:,:,self.mlp.input_mask]
-        x_int = self.norm2(x)
-        x_int = self.mlp(x_int)
-        x_int = self.drop_path(x_int)
-        if hasattr(self.mlp, "output_mask") and self.mlp.output_mask is not None:
-            #x = res
-            #x[:,:,self.mlp.output_mask] = x[:,:,self.mlp.output_mask] + x_int
+    #if not (hasattr(self.mlp, "skip_block") and self.mlp.skip_block):
+    res = x
+    if hasattr(self.mlp, "input_mask") and self.mlp.input_mask is not None:
+        x = x[:,:,self.mlp.input_mask]
+    x_int = self.norm2(x)
+    x_int = self.mlp(x_int)
+    x_int = self.drop_path(x_int)
+    if hasattr(self.mlp, "output_mask") and self.mlp.output_mask is not None:
+        #x = res
+        #x[:,:,self.mlp.output_mask] = x[:,:,self.mlp.output_mask] + x_int
 
-            x = torch.zeros_like(res)
-            x[:, : , self.mlp.output_mask] = x[:, : , self.mlp.output_mask] + x_int
-            x = res + x
-        else:
-            x = x_int + res
+        x = torch.zeros_like(res)
+        x[:, : , self.mlp.output_mask] = x[:, : , self.mlp.output_mask] + x_int
+        x = res + x
+    else:
+        x = x_int + res
     feat_mlp = x
     #test_mlp = feat_mlp[0, 0].detach().cpu().numpy()
 
@@ -178,23 +178,23 @@ def forward_block_nested_vit(self, x):
     #attention
     #if detach_graph:
     #    x = x.detach()
-    if not (hasattr(self.attn, "skip_block") and self.attn.skip_block):
-        res = x
-        x = self.norm1(x)
-        x = self.attn(x)
-        x = self.ls1(x)
-        x = self.drop_path1(x)
-        x = x + res
+    #if not (hasattr(self.attn, "skip_block") and self.attn.skip_block):
+    res = x
+    x = self.norm1(x)
+    x = self.attn(x)
+    x = self.ls1(x)
+    x = self.drop_path1(x)
+    x = x + res
     feat_attn = x
 
     #FFN
-    if not (hasattr(self.mlp, "skip_block") and self.mlp.skip_block):
-        res = x
-        x = self.norm2(x)
-        x = self.mlp(x)
-        x = self.ls2(x)
-        x = self.drop_path2(x)
-        x = x + res
+    #if not (hasattr(self.mlp, "skip_block") and self.mlp.skip_block):
+    res = x
+    x = self.norm2(x)
+    x = self.mlp(x)
+    x = self.ls2(x)
+    x = self.drop_path2(x)
+    x = x + res
     feat_mlp = x
 
     return x, feat_attn, feat_mlp
@@ -384,7 +384,7 @@ def update_model_gate_layer(model, args):
 
         if m.__class__.__name__ in ["Attention", "MemEffAttention"]:
             m.kr = 1.0
-            m.skip_block = False
+            #m.skip_block = False
             m.input_mask = None
             m.output_mask = None
 
@@ -414,7 +414,7 @@ def update_model_gate_layer(model, args):
 
         elif m.__class__.__name__ == "Mlp":
             m.kr = 1.0
-            m.skip_block = False
+            #m.skip_block = False
             m.input_mask = None
             m.output_mask = None
 
