@@ -12,8 +12,8 @@ This GitHub repository contains the code for our paper: **Depth Aware Pruning: S
 <p align="center">
 <img src="fig/BlockPerformance_overTrainingEpochs.png"  width="400" height="300">
 </p>
-> The relative feature improvement on classification token (upper row) and patches (botton row) for individual Attention and MLP blocks is depth dependent.
-> Deeper layers express features only in later epochs.
+The relative feature improvement on classification token (upper row) and patches (botton row) for individual Attention and MLP blocks is depth dependent.
+Deeper layers express features only in later epochs.
 
 
 
