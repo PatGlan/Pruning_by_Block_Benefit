@@ -47,7 +47,7 @@ As shown in the following table, *P3B* significantly outperforms existing prunin
 checkout our repository
 
 ```
-git clone https://anonymous.4open.science/r/DepthAwarePruning-DE53
+git clone https://anonymous.4open.science/r/Pruning_by_Block_Benefit-0416
 cd Pruning_by_Block_Benefit
 ```
 
