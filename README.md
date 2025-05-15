@@ -48,7 +48,7 @@ checkout our repository
 
 ```
 git clone https://anonymous.4open.science/r/DepthAwarePruning-DE53
-cd DepthAwarePruning
+cd Pruning_by_Block_Benefit
 ```
 
 <install environment>
