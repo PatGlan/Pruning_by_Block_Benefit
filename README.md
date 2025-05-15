@@ -1,4 +1,4 @@
-# Pruning by Block Benefit
+# Pruning by Block Benefit (P3B)
 
 
 This GitHub repository contains the code for our paper: **Pruning by Block Benefit: Exploring the Properties of Vision Transformer Blocks during Domain Adaptation**
