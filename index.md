@@ -28,12 +28,18 @@ This GitHub repository contains the code for our paper: **Pruning by Block Benef
 
 ---
 
+<div align="center"> 
+    <h2> Motivation </h2>
+</div>
+
 
 <p align="center">
-<img src="fig/BlockPerformance_overTrainingEpochs.png"  width="400" height="300">
+<img src="fig/BlockPerformance_overTrainingEpochs.png"  width="400" height="400">
 </p>
-The relative feature improvement on classification token (upper row) and patches (botton row) for individual Attention and MLP blocks is depth dependent.
-Deeper layers express features only in later epochs.
+<p align="center" style="font-size: 0.9em; color: gray;">
+  <b>Figure 1:</b> The relative feature improvement on classification token (upper row) and patches (botton row) for individual Attention and MLP blocks is depth dependent. Deeper layers express features only in later epochs.
+</p>
+
 
 When applying pruning strategies to transfer learning tasks, the discrepancy between the initial model domain and the target domain of the downstream task must be considered.
 Neglecting this factor leads to unfavourable pruned weights, ultimately causing performance degradation when model parameters are eliminated prematurely.
@@ -41,13 +47,28 @@ Moreover, our work points out an overlooked aspect in pruning, regarding the mod
 As visualized in the figure above, deeper layers converge later in training, harming early pruning decisions.
 This raises the question: "When to prune individual layers"?
 
+---
+
+<div align="center"> 
+    <h2> Method </h2>
+</div>
+
 We propose the novel pruning framwork **Pruning by Block Benefit (P3B)** to balance the global parameter resources dependent on the feature improvement of Attention and MLP blocks.
 *P3B* is a highly performant pruning framework, considering the structural change of the model during domain adaptaion.
+
+<p align="center">
+<img src="fig/Block_plan.png"  width="600" height="400">
+</p>
+<p align="center" style="font-size: 0.9em; color: gray;">
+  <b>Figure 2:</b> Block plan P3B. We measure the realtive performance of each block to set a superior parameter budet per block. 
+</p>
+
 As shown in the following table, *P3B* significantly outperforms existing pruning methods.
 
 
 
-
+<div align="center">
+    
  | model      | method         | pruned  | IFOOD <br> pr=50%   | IFOOD <br> pr=75%   | INAT19 <br> pr=50%  | INAT19 <br> pr=75%  |
  |:-----------|:---------------|:--------|:-------------------:|:-------------------:|:-------------------:|:-------------------:|
  | Deit-Small | Deit           | &cross; | 73.9                                     || 74.7                                     ||
@@ -58,8 +79,25 @@ As shown in the following table, *P3B* significantly outperforms existing prunin
  |            | WD-Prune       | &check; | 50.2                | 44.7                | 54.8                | 46.7                |
  |            | SaVit          | &check; | 65.7                | 59.5                | 64.1                | 45.3                |
  |            | **P3B (ours)** | &check; | **71.5**            | **68.6**            | **69.3**            | **61.4**            |
+ 
+</div>
 
 <br>
 
 ---
+
+## Citation
+
+
+If you use this code in your research, please cite the following paper:
+
+```
+@inproceedings{
+  glandorf2025p3b,
+  title={Pruning by Block Benefit: Exploring the Properties of Vision Transformer Blocks during Domain Adaptation},
+  author={Patrick Glandorf and Bodo Rosenhahn},
+  booktitle={International Conference on Computer Vision Workshop},
+  year={2025}
+}
+```
 
