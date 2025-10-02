@@ -32,13 +32,14 @@ This GitHub repository contains the code for our paper: **Pruning by Block Benef
     <h2> Motivation </h2>
 </div>
 
-Applying common pruning strategies on transfer learning tasks requires careful attention to the domain discrepancy.
-Thereby, the early removement of prunable elements leads to a misevaluation of weight significance, since task sensitive elements become important, only once the model has been converged to the target task.
-Neglecting this factor leads to an unfavourable model strucute, ultimately causing performance degradation when model parameters are eliminated prematurely.
+Common pruning strategies often fail in transfer learning because early pruning misevaluates weight significance before the model converges to the target domain. 
+Concretely, the early removement of prunable elements leads to a misevaluation of weight significance, since task sensitive elements become important, only once the model has been converged to the target domain.
+This premature parameter elimination compromises the resulting model structure and harms performance.
 
 Our work points out an overlooked aspect in pruning, regarding the model depth.
-As visualized in the figure above, deeper layers converge later in training, harming early pruning decisions.
-This raises the question: "When to prune individual layers"?
+As visualized in the figure below, our work shows that deeper layers converge later in training, harming early pruning decisions.
+Therefore, P3B establishes block-specific pruning rates based on the relative performance of each block. 
+This approach effectively identifies later-converging blocks and guarantees their reactivation during training.
 
 <p align="center">
 <img src="fig/BlockPerformance_overTrainingEpochs.png"  width="400" height="400">
@@ -54,6 +55,9 @@ This raises the question: "When to prune individual layers"?
 </div>
 
 In this work we propose the novel pruning framwork **Pruning by Block Benefit (P3B)** to balance the global parameter resources dependent on the feature improvement of Attention and MLP blocks.
+The approach is designed to decouple the inter-block pruning ratio from the intra-layer element elimination, ensuring their respective criteria are assessed independently.
+As illustrated in Figure 2, **P3B** determines a block-wise parameter budget by utilizing the relative feature improvement demonstrated Block Performacne Indicator $\Delta\Psi_i$. 
+This defined layer-wise sparsity constraint then guides the generation of the pruning mask via local pruning criteria.
 *P3B* is a highly performant pruning framework, considering the structural change of the model during domain adaptaion.
 
 <p align="center">
