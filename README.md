@@ -7,6 +7,12 @@ Blocks during Domain Adaptation </h1>
 <a href="https://arxiv.org/abs/2506.23675">
   <img src="https://img.shields.io/badge/ArXiv-2505.05049-red?style=flat&label=ArXiv&link=https%3A%2F%2Farxiv.org%2Fabs%2F2505.05049" alt="Static Badge" />
 </a>
+<a href="https://openreview.net/forum?id=NjzZunViBb">
+  <img src="https://img.shields.io/badge/ICML-OpenReview-blue?style=flat&label=ICCVW&link=https%3A%2F%2Fopenreview.net%2Fforum%3Fid%3DNjzZunViBb" alt="Static Badge" />
+</a>
+<a href="[https://greenautoml4fas.github.io/UncertainSAM/](https://patglan.github.io/Pruning_by_Block_Benefit/)">
+  <img src="https://img.shields.io/badge/Project_Page-green?style=flat&label=Github.io&link=https%3A%2F%2Fgreenautoml4fas.github.io%2FUncertainSAM%2F" alt="Static Badge" />
+</a>
 <a href="https://github.com/PatGlan/Pruning_by_Block_Benefit">
   <img src="https://img.shields.io/badge/GitHub-Code-yellow?style=flat&link=https%3A%2F%2Fgithub.com%2FGreenAutoML4FAS%2FUncertainSAM" alt="Static Badge" />
 </a>
