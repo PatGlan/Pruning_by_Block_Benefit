@@ -39,7 +39,7 @@ This premature parameter elimination compromises the resulting model structure a
 Our work points out an overlooked aspect in pruning, regarding the model depth.
 As visualized in the figure below, our work shows that deeper layers converge later in training, harming early pruning decisions.
 Therefore, P3B establishes block-specific pruning rates based on the relative performance of each block. 
-This approach effectively identifies later-converging blocks and guarantees their reactivation during training.
+This approach effectively identifies lately-converging blocks while guaranteeing the reactivation of pruned elements if the overall block gains performance.
 
 <p align="center">
 <img src="fig/BlockPerformance_overTrainingEpochs.png"  width="400" height="400">
