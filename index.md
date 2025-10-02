@@ -32,6 +32,13 @@ This GitHub repository contains the code for our paper: **Pruning by Block Benef
     <h2> Motivation </h2>
 </div>
 
+Applying common pruning strategies on transfer learning tasks requires careful attention to the domain discrepancy.
+Thereby, the early removement of prunable elements leads to a misevaluation of weight significance, since task sensitive elements become important, only once the model has been converged to the target task.
+Neglecting this factor leads to an unfavourable model strucute, ultimately causing performance degradation when model parameters are eliminated prematurely.
+
+Our work points out an overlooked aspect in pruning, regarding the model depth.
+As visualized in the figure above, deeper layers converge later in training, harming early pruning decisions.
+This raises the question: "When to prune individual layers"?
 
 <p align="center">
 <img src="fig/BlockPerformance_overTrainingEpochs.png"  width="400" height="400">
@@ -40,20 +47,13 @@ This GitHub repository contains the code for our paper: **Pruning by Block Benef
   <b>Figure 1:</b> The relative feature improvement on classification token (upper row) and patches (botton row) for individual Attention and MLP blocks is depth dependent. Deeper layers express features only in later epochs.
 </p>
 
-
-When applying pruning strategies to transfer learning tasks, the discrepancy between the initial model domain and the target domain of the downstream task must be considered.
-Neglecting this factor leads to unfavourable pruned weights, ultimately causing performance degradation when model parameters are eliminated prematurely.
-Moreover, our work points out an overlooked aspect in pruning, regarding the model depth.
-As visualized in the figure above, deeper layers converge later in training, harming early pruning decisions.
-This raises the question: "When to prune individual layers"?
-
 ---
 
 <div align="center"> 
     <h2> Method </h2>
 </div>
 
-We propose the novel pruning framwork **Pruning by Block Benefit (P3B)** to balance the global parameter resources dependent on the feature improvement of Attention and MLP blocks.
+In this work we propose the novel pruning framwork **Pruning by Block Benefit (P3B)** to balance the global parameter resources dependent on the feature improvement of Attention and MLP blocks.
 *P3B* is a highly performant pruning framework, considering the structural change of the model during domain adaptaion.
 
 <p align="center">
