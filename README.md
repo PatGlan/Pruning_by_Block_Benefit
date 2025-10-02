@@ -1,3 +1,19 @@
+<div align="center"> 
+    <h1> Pruning by Block Benefit: Exploring the Properties of Vision Transformer
+Blocks during Domain Adaptation </h1>
+</div>
+
+<div align="center"> 
+<a href="https://arxiv.org/abs/2506.23675">
+  <img src="https://img.shields.io/badge/ArXiv-2505.05049-red?style=flat&label=ArXiv&link=https%3A%2F%2Farxiv.org%2Fabs%2F2505.05049" alt="Static Badge" />
+</a>
+<a href="https://github.com/PatGlan/Pruning_by_Block_Benefit">
+  <img src="https://img.shields.io/badge/GitHub-Code-yellow?style=flat&link=https%3A%2F%2Fgithub.com%2FGreenAutoML4FAS%2FUncertainSAM" alt="Static Badge" />
+</a>
+</div>
+
+---
+
 # Pruning by Block Benefit (P3B)
 
 
